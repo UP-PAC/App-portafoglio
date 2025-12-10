@@ -3,5 +3,3 @@ pandas
 numpy
 matplotlib
 openpyxl
-pathlib
-math
