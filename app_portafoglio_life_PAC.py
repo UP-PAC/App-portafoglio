@@ -737,6 +737,12 @@ elif step_corrente == "Step 5":
         df2.style
         .applymap(evidenzia_step5)
         .set_properties(**{"width": "130px", "height": "45px", "text-align": "center"})
+        .set_table_styles([
+            {"selector": "th", "props": [
+                ("background-color", "#f0f0f0"),
+                ("text-align", "center")
+            ]}
+        ])
     )
 
     st.write("")
