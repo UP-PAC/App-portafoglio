@@ -6,19 +6,6 @@ import math
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-import streamlit.components.v1 as components
-
-def scroll_to_top():
-    # Piccolo snippet JS che forza lo scroll all'inizio della pagina
-    components.html(
-        """
-        <script>
-        const main = window.parent.document.querySelector('section.main');
-        if (main) { main.scrollTo(0, 0); }
-        </script>
-        """,
-        height=0,
-    )
 
 
 # --------------------------------------------------------------------
@@ -30,147 +17,19 @@ st.set_page_config(
 )
 
 # --------------------------------------------------------------------
-# STILE GRAFICO – VERSIONE "WOW"
+# STILE GRAFICO
 # --------------------------------------------------------------------
 st.markdown(
     """
     <style>
-        /* Font generale */
-        html, body, [class*="css"]  {
-            font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-
-        /* Sfondo generale con leggero gradiente */
-        .main {
-            background: radial-gradient(circle at 0% 0%, #eef3ff 0, #f7f9fc 45%, #ffffff 100%);
-        }
-
-        /* Contenitore centrale più "pulito" e centrato */
-        .block-container {
-            padding-top: 1.5rem;
-            padding-bottom: 2.5rem;
-            max-width: 1150px;
-        }
-
-        /* Titolo degli step */
-        .step-title {
-            font-size: 30px;
-            font-weight: 800;
-            margin: 0.2rem 0 0.8rem 0;
-            color: #003366;
-            letter-spacing: 0.5px;
-        }
-
-        /* Sottotitolo */
-        .step-subtitle {
-            font-size: 17px;
-            color: #4c5a70;
-            margin-bottom: 1.4rem;
-        }
-
-        /* Pulsanti Avanti / Indietro */
+        .main { background-color: #f7f9fc; }
+        .step-title { font-size: 26px; font-weight: 700; margin-bottom: 0.5rem; }
+        .step-subtitle { font-size: 16px; color: #555555; margin-bottom: 1.5rem; }
         .stButton>button {
-            background: linear-gradient(135deg, #f2f2f2 0%, #e0e0e0 100%);
-            color: #222222;
-            border: 1px solid #c2c2c2;
-            border-radius: 999px;
-            padding: 0.45rem 1.4rem;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.10);
-            transition: all 0.15s ease-in-out;
-        }
-
-        .stButton>button:hover {
-            background: linear-gradient(135deg, #ffffff 0%, #e7e7e7 100%);
-            box-shadow: 0 3px 6px rgba(0,0,0,0.16);
-            transform: translateY(-1px);
-        }
-
-        .stButton>button:active {
-            box-shadow: 0 1px 2px rgba(0,0,0,0.18);
-            transform: translateY(0px);
-        }
-
-/* Sidebar più chiara e leggibile */
-[data-testid="stSidebar"] {
-    background: #f4f5fb;
-    color: #111827 !important;
-    border-right: 1px solid #d1d5db;
-}
-
-/* Titoli nella sidebar */
-[data-testid="stSidebar"] h1,
-[data-testid="stSidebar"] h2,
-[data-testid="stSidebar"] h3,
-[data-testid="stSidebar"] h4 {
-    color: #111827 !important;
-}
-
-/* Label (radio, select, ecc.) nella sidebar */
-[data-testid="stSidebar"] label {
-    color: #111827 !important;
-}
-
-        /* Radio nella sidebar (step) */
-        [data-testid="stSidebar"] .stRadio > label {
-            font-weight: 600;
-        }
-
-        /* Tabella "tipo card": leggera pulizia generale */
-        table {
-            font-size: 13px;
-        }
-
-        th {
-            font-weight: 700;
-        }
-
-        /* Dataframe / data_editor leggibili */
-        .stDataFrame table, .stDataFrame thead tr th {
-            font-size: 12px;
-        }
-
-        /* Titolini di sezione (usati come sottotitoli blu) */
-        .section-header {
-            font-size: 18px;
-            font-weight: 700;
-            color: #005b96;
-            margin-top: 1.2rem;
-            margin-bottom: 0.6rem;
-        }
-
-        /* Piccole "card" informative azzurre/rosse (riutilizzabili) */
-        .info-box {
-            background-color: #d7ecff;
-            padding: 14px 16px;
-            border-radius: 10px;
+            background-color: #e0e0e0;
             color: #000000;
-            font-size: 14px;
-            line-height: 1.5;
-            margin-bottom: 0.8rem;
-        }
-
-        .warning-box {
-            background-color: #ffe0e0;
-            padding: 14px 16px;
-            border-radius: 10px;
-            color: #7f1d1d;
-            font-size: 14px;
-            line-height: 1.5;
-            margin-bottom: 0.8rem;
-        }
-
-        /* Piccolo sottolineato sotto il titolo di step */
-        .step-title::after {
-            content: "";
-            display: block;
-            width: 70px;
-            height: 3px;
-            margin-top: 6px;
-            border-radius: 999px;
-            background: linear-gradient(90deg, #005b96 0%, #38bdf8 100%);
+            border: 1px solid #bbbbbb;
+            border-radius: 4px;
         }
     </style>
     """,
@@ -481,45 +340,18 @@ with st.sidebar:
 
 
 # --------------------------------------------------------------------
-# PULSANTI NAVIGAZIONE – VERSIONE GRAFICA MIGLIORATA
+# PULSANTI NAVIGAZIONE
 # --------------------------------------------------------------------
 def mostra_pulsanti_navigazione():
-    totale_step = len(lista_step)
-    idx_corrente = st.session_state.step_index
-
-    col1, col2, col3 = st.columns([1.2, 1.6, 1.2])
-
-    # Pulsante INDIETRO
+    col1, col2, col3 = st.columns([1, 2, 1])
     with col1:
-        if idx_corrente > 0:
-            if st.button("◀ Indietro", use_container_width=True):
+        if st.session_state.step_index > 0:
+            if st.button("◀ Indietro"):
                 st.session_state.step_index -= 1
                 st.rerun()
-
-    # Indicatore centrale dello step corrente
-    with col2:
-        st.markdown(
-            f"""
-            <div style="
-                text-align:center;
-                font-size:14px;
-                color:#4b5563;
-                padding-top:0.3rem;
-            ">
-                Step <b>{idx_corrente + 1}</b> di <b>{totale_step}</b>
-                <br>
-                <span style="font-size:12px; color:#6b7280;">
-                    ({lista_step[idx_corrente]})
-                </span>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-    # Pulsante AVANTI
     with col3:
-        if idx_corrente < totale_step - 1:
-            if st.button("Avanti ▶", use_container_width=True):
+        if st.session_state.step_index < len(lista_step) - 1:
+            if st.button("Avanti ▶"):
                 st.session_state.step_index += 1
                 st.rerun()
 
@@ -528,7 +360,6 @@ def mostra_pulsanti_navigazione():
 # CONTENUTI STEP
 # --------------------------------------------------------------------
 step_corrente = lista_step[st.session_state.step_index]
-scroll_to_top()
 
 
 # --------------------------------------------------------------------
@@ -647,41 +478,14 @@ elif step_corrente == "Step 2":
     stile = (
         df.style
         .applymap(evidenzia)
-        .set_properties(
-        **{
-            "width": "100px",
-            "height": "50px",
-            "text-align": "center",
-            "font-size": "11px"
-        }
-        )
+        .set_properties(**{"width": "130px", "height": "45px", "text-align": "center"})
         .set_table_styles([
-        # intestazioni di colonna (Bassa, Medio-Bassa, ecc.)
-        {
-            "selector": "th.col_heading",
-            "props": [
-                ("background-color", "#e0e0e0"),
-                ("text-align", "center"),
-                ("font-size", "15px"),
-                ("padding", "4px 6px")
-            ]
-        },
-        # intestazioni di riga (Brevissimo, Breve, ecc.) → colonna stretta
-        {
-            "selector": "th.row_heading",
-            "props": [
-                ("min-width", "50px"),
-                ("max-width", "50px"),
-                ("font-size", "12px"),
-                ("text-align", "left"),
-                ("white-space", "normal"),
-                ("padding", "4px 4px"),
-                ("background-color", "#e0e0e0")
-            ]
-        }
+            {"selector": "th", "props": [
+                ("background-color", "#f0f0f0"),
+                ("text-align", "center")
+            ]}
         ])
-        )
-
+    )
 
     st.table(stile)
 
@@ -807,17 +611,14 @@ elif step_corrente == "Step 4":
 
     mostra_pulsanti_navigazione()
 
+# --------------------------------------------------------------------
 # STEP 5 – SUGGERIMENTO % AZIONARIO IN FUNZIONE DELLO STILE DI CONSULENTE
 # --------------------------------------------------------------------
 elif step_corrente == "Step 5":
-    # immagine in alto
-    mostra_immagine("step5.png", "Suggerimento percentuale di Azionario")
-
     st.markdown(
         '<div class="step-title">Step 5 – Suggerimento % di Azionario</div>',
         unsafe_allow_html=True
     )
-
 
     # Testo su sfondo grigio
     st.markdown(
@@ -881,41 +682,15 @@ elif step_corrente == "Step 5":
         return "text-align:center;"
 
     stile5 = (
-    df.style
-    .applymap(evidenzia_step5)
-    .set_properties(
-        **{
-            "width": "90px",
-            "height": "32px",
-            "text-align": "center",
-            "font-size": "11px"
-        }
-    )
-    .set_table_styles([
-        # intestazioni di colonna (Bassa, Medio-Bassa, ecc.)
-        {
-            "selector": "th.col_heading",
-            "props": [
-                ("background-color", "#e0e0e0"),
-                ("text-align", "center"),
-                ("font-size", "11px"),
-                ("padding", "4px 6px")
-            ]
-        },
-        # intestazioni di riga (Brevissimo, Breve, ecc.) → colonna stretta
-        {
-            "selector": "th.row_heading",
-            "props": [
-                ("min-width", "110px"),
-                ("max-width", "110px"),
-                ("font-size", "11px"),
-                ("text-align", "left"),
-                ("white-space", "normal"),
-                ("padding", "4px 4px"),
-                ("background-color", "#e0e0e0")
-            ]
-        }
-    ])
+        df.style
+        .applymap(evidenzia_step5)
+        .set_properties(**{"width": "130px", "height": "45px", "text-align": "center"})
+        .set_table_styles([
+            {"selector": "th", "props": [
+                ("background-color", "#f0f0f0"),
+                ("text-align", "center")
+            ]}
+        ])
     )
 
     st.write("")
@@ -961,40 +736,8 @@ elif step_corrente == "Step 5":
     stile6 = (
         df2.style
         .applymap(evidenzia_step5)
-        .set_properties(
-        **{
-            "width": "90px",
-            "height": "32px",
-            "text-align": "center",
-            "font-size": "11px"
-        }
-        )
-        .set_table_styles([
-        # intestazioni di colonna
-        {
-            "selector": "th.col_heading",
-            "props": [
-                ("background-color", "#e0e0e0"),
-                ("text-align", "center"),
-                ("font-size", "11px"),
-                ("padding", "4px 6px")
-            ]
-        },
-        # intestazioni di riga → colonna stretta
-        {
-            "selector": "th.row_heading",
-            "props": [
-                ("min-width", "110px"),
-                ("max-width", "110px"),
-                ("font-size", "11px"),
-                ("text-align", "left"),
-                ("white-space", "normal"),
-                ("padding", "4px 4px"),
-                ("background-color", "#e0e0e0")
-            ]
-        }
-        ])
-        )
+        .set_properties(**{"width": "130px", "height": "45px", "text-align": "center"})
+    )
 
     st.write("")
     st.markdown("#### Griglia aggiornata: Ecco la % di Azionario definitiva")
