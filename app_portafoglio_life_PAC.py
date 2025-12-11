@@ -6,6 +6,19 @@ import math
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+import streamlit.components.v1 as components
+
+def scroll_to_top():
+    # Piccolo snippet JS che forza lo scroll all'inizio della pagina
+    components.html(
+        """
+        <script>
+        const main = window.parent.document.querySelector('section.main');
+        if (main) { main.scrollTo(0, 0); }
+        </script>
+        """,
+        height=0,
+    )
 
 
 # --------------------------------------------------------------------
@@ -340,18 +353,45 @@ with st.sidebar:
 
 
 # --------------------------------------------------------------------
-# PULSANTI NAVIGAZIONE
+# PULSANTI NAVIGAZIONE – VERSIONE GRAFICA MIGLIORATA
 # --------------------------------------------------------------------
 def mostra_pulsanti_navigazione():
-    col1, col2, col3 = st.columns([1, 2, 1])
+    totale_step = len(lista_step)
+    idx_corrente = st.session_state.step_index
+
+    col1, col2, col3 = st.columns([1.2, 1.6, 1.2])
+
+    # Pulsante INDIETRO
     with col1:
-        if st.session_state.step_index > 0:
-            if st.button("◀ Indietro"):
+        if idx_corrente > 0:
+            if st.button("◀ Indietro", use_container_width=True):
                 st.session_state.step_index -= 1
                 st.rerun()
+
+    # Indicatore centrale dello step corrente
+    with col2:
+        st.markdown(
+            f"""
+            <div style="
+                text-align:center;
+                font-size:14px;
+                color:#4b5563;
+                padding-top:0.3rem;
+            ">
+                Step <b>{idx_corrente + 1}</b> di <b>{totale_step}</b>
+                <br>
+                <span style="font-size:12px; color:#6b7280;">
+                    ({lista_step[idx_corrente]})
+                </span>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+    # Pulsante AVANTI
     with col3:
-        if st.session_state.step_index < len(lista_step) - 1:
-            if st.button("Avanti ▶"):
+        if idx_corrente < totale_step - 1:
+            if st.button("Avanti ▶", use_container_width=True):
                 st.session_state.step_index += 1
                 st.rerun()
 
@@ -360,7 +400,7 @@ def mostra_pulsanti_navigazione():
 # CONTENUTI STEP
 # --------------------------------------------------------------------
 step_corrente = lista_step[st.session_state.step_index]
-
+scroll_to_top()
 
 # --------------------------------------------------------------------
 # INTRO
