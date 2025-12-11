@@ -655,6 +655,9 @@ elif step_corrente == "Step 4":
 # STEP 5 – SUGGERIMENTO % AZIONARIO IN FUNZIONE DELLO STILE DI CONSULENTE
 # --------------------------------------------------------------------
 elif step_corrente == "Step 5":
+    # immagine in alto
+    mostra_immagine("step5.png", "Suggerimento percentuale di Azionario")
+
     st.markdown(
         '<div class="step-title">Step 5 – Suggerimento % di Azionario</div>',
         unsafe_allow_html=True
