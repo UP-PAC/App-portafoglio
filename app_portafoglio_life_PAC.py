@@ -2152,6 +2152,51 @@ elif step_corrente == "Step 9":
     # Immagine (se esiste un file "step9.png")
     mostra_immagine("step9.png", "Selezione dei gestori")
 
+
+    # Data aggiornamento (INPUT_AC.xlsx - cella A19)
+    data_aggiornamento_str = None
+    try:
+        from datetime import datetime, date
+        import pandas as pd
+        import openpyxl
+
+        wb = openpyxl.load_workbook("INPUT_AC.xlsx", data_only=True)
+        ws = wb.active
+        val = ws["A19"].value
+
+        if isinstance(val, (datetime, date)):
+            data_aggiornamento_str = val.strftime("%d/%m/%Y")
+        else:
+            dt = pd.to_datetime(val, dayfirst=True, errors="coerce")
+            if pd.notna(dt):
+                data_aggiornamento_str = dt.strftime("%d/%m/%Y")
+            elif val is not None:
+                data_aggiornamento_str = str(val)
+    except Exception:
+        data_aggiornamento_str = None
+
+    if data_aggiornamento_str:
+        st.markdown(
+            f'''
+            <div style="
+                background-color:#16a34a;
+                color:white;
+                padding:10px 14px;
+                border-radius:8px;
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                font-weight:700;
+                margin-top:6px;
+                margin-bottom:14px;
+            ">
+                <div>I dati relativi ai fondi sono aggiornati al:</div>
+                <div style="font-size:22px;">{data_aggiornamento_str}</div>
+            </div>
+            ''',
+            unsafe_allow_html=True
+        )
+
     testo_step9 = (
         "Nei successivi fogli di lavoro procederai alla selezione dei gestori "
         "per la creazione del portafoglio di fondi da proporre alla clientela. "
