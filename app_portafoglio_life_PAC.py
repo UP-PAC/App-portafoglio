@@ -9,16 +9,26 @@ import matplotlib.dates as mdates
 import streamlit.components.v1 as components
 
 def scroll_to_top():
-    # Piccolo snippet JS che forza lo scroll all'inizio della pagina
+    # Forza lo scroll all'inizio della pagina dopo il render
     components.html(
         """
         <script>
-        const main = window.parent.document.querySelector('section.main');
-        if (main) { main.scrollTo(0, 0); }
+        (function() {
+            function doScroll(){
+                // prova sia sul main container sia sulla window
+                const main = window.parent.document.querySelector('section.main');
+                if (main) { main.scrollTo(0, 0); }
+                window.parent.scrollTo(0, 0);
+            }
+            // doppio tentativo con micro-delay per essere robusti
+            setTimeout(doScroll, 50);
+            setTimeout(doScroll, 200);
+        })();
         </script>
         """,
         height=0,
     )
+
 
 
 # --------------------------------------------------------------------
@@ -81,6 +91,13 @@ if "equity_raccomandata" not in st.session_state:
 
 if "equity_scelta" not in st.session_state:
     st.session_state.equity_scelta = "0%"
+
+if "scroll_now" not in st.session_state:
+    st.session_state.scroll_now = True  # al primo avvio parte dall'alto
+
+if "prev_step_index" not in st.session_state:
+    st.session_state.prev_step_index = st.session_state.step_index
+
 
 # Per la selezione dei fondi nello Step 10
 if "fondi_step10" not in st.session_state:
@@ -347,7 +364,12 @@ def _costruisci_portafoglio(importo: float, equity_pct: int, selezionate: list[s
 with st.sidebar:
     st.markdown("### Navigazione")
     scelta = st.radio("Vai allo step:", lista_step, index=st.session_state.step_index)
-    st.session_state.step_index = lista_step.index(scelta)
+    nuovo_idx = lista_step.index(scelta)
+
+    if nuovo_idx != st.session_state.step_index:
+        st.session_state.step_index = nuovo_idx
+        st.session_state.scroll_now = True
+
     st.markdown("---")
     st.markdown(f"**Step corrente:** {lista_step[st.session_state.step_index]}")
 
@@ -363,10 +385,10 @@ def mostra_pulsanti_navigazione():
 
     # Pulsante INDIETRO
     with col1:
-        if idx_corrente > 0:
-            if st.button("◀ Indietro", use_container_width=True):
-                st.session_state.step_index -= 1
-                st.rerun()
+        if st.button("◀ Indietro", use_container_width=True):
+            st.session_state.step_index -= 1
+            st.session_state.scroll_now = True
+            st.rerun()
 
     # Indicatore centrale dello step corrente
     with col2:
@@ -393,6 +415,7 @@ def mostra_pulsanti_navigazione():
         if idx_corrente < totale_step - 1:
             if st.button("Avanti ▶", use_container_width=True):
                 st.session_state.step_index += 1
+                st.session_state.scroll_now = True
                 st.rerun()
 
 
@@ -400,7 +423,13 @@ def mostra_pulsanti_navigazione():
 # CONTENUTI STEP
 # --------------------------------------------------------------------
 step_corrente = lista_step[st.session_state.step_index]
-scroll_to_top()
+
+# scroll solo quando cambio step
+if st.session_state.scroll_now or st.session_state.prev_step_index != st.session_state.step_index:
+    scroll_to_top()
+    st.session_state.scroll_now = False
+    st.session_state.prev_step_index = st.session_state.step_index
+
 
 # --------------------------------------------------------------------
 # INTRO
@@ -2205,6 +2234,7 @@ elif step_corrente == "Step 10":
     """,
     unsafe_allow_html=True
 )
+
     st.markdown("<span style='color:red'>N.B: Sia la 'Spunta' della casella che il 'Peso' del Prodotto richiedono spesso più di un tentativo prima che l'App registri l'azione. Porre quindi particolare attenzione</span>", unsafe_allow_html=True)
 
 
