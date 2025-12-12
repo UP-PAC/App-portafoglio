@@ -3246,6 +3246,10 @@ elif step_corrente == "Step 14":
         # --------------------------------------------------------------
         # 7. Tabella riepilogativa anno per anno
         # --------------------------------------------------------------
+
+        st.markdown("### Evoluzione del montante – scenari percentili")
+
+
         righe = []
         for anno in range(anni_tot_int + 1):
             idx = min(anno * 12, n_steps)
@@ -3258,7 +3262,6 @@ elif step_corrente == "Step 14":
 
         df_tab = pd.DataFrame(righe)
 
-        st.markdown("### Evoluzione del montante – scenari percentili")
         st.dataframe(
             df_tab.style.format({
                 "Montante Ottimistico (90° p.)": "€{:,.0f}".format,
