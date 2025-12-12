@@ -3038,6 +3038,8 @@ elif step_corrente == "Step 13":
 elif step_corrente == "Step 14":
     mostra_immagine("step14.png", "Simulazioni Monte Carlo del montante")
 
+    st.markdown("### Evoluzione del montante – scenari percentili")
+
         # Box introduttivo su sfondo azzurro
     st.markdown(
         f"""
