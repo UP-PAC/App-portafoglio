@@ -2205,6 +2205,7 @@ elif step_corrente == "Step 10":
     """,
     unsafe_allow_html=True
 )
+    st.markdown("<span style='color:red'>N.B: Sia la 'Spunta' della casella che il 'Peso' del Prodotto richiedono spesso più di un tentativo prima che l'App registri l'azione. Porre quindi particolare attenzione</span>", unsafe_allow_html=True)
 
 
     # Elenco delle 12 asset class gestite in questo step
@@ -3038,7 +3039,7 @@ elif step_corrente == "Step 13":
 elif step_corrente == "Step 14":
     mostra_immagine("step14.png", "Simulazioni Monte Carlo del montante")
 
-    st.markdown("### Evoluzione del montante – scenari percentili")
+    st.markdown("### Evoluzione del Montante – Scenari")
 
         # Box introduttivo su sfondo azzurro
     st.markdown(
