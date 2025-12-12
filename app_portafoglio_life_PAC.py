@@ -411,16 +411,29 @@ if step_corrente == "Intro":
 
     # Titolo e sottotitolo sotto l'immagine
     st.markdown('<div class="step-title">Intro</div>', unsafe_allow_html=True)
-    st.markdown(
-        '<div class="step-subtitle">'
-        "Questa App propone un modello di costruzione del portafoglio basato su due step."
-        "</div>",
-        unsafe_allow_html=True
-    )
 
-    st.write("- **(A)** Creazione dell'Asset Allocation")
-    st.write("- **(B)** Selezione dei Prodotti")
-    st.markdown("<span style='color:red'>Nella parte finale sarà anche possibile applicare una logica Life Cycle ed ipotizzare dei conferimenti periodici in una logica PAC</span>", unsafe_allow_html=True)
+    st.markdown(
+        """
+        <div style="
+            background-color: #d7ecff;
+            padding: 20px;
+            border-radius: 8px;
+            color: #000000;
+            font-size: 16px;
+            line-height: 1.5;
+        ">
+        Questa App propone un modello di costruzione del portafoglio basato su due step:<br><br>
+
+        **(A)** Creazione dell'Asset Allocation<br>
+
+        **(B)** Selezione dei Prodotti
+        </div>
+        """,
+        unsafe_allow_html=True
+    )   
+    
+    
+    st.markdown("<span style='color:red'>N.B: Nella parte finale sarà anche possibile applicare una logica Life Cycle per smorzare il rischio del portafoglio nella parte finale del periodo di investimento. Inoltre, si potranno prevedere dei conferimenti periodici e quindi utilizzare l'App per la realizzazione dei PAC</span>", unsafe_allow_html=True)
 
     mostra_pulsanti_navigazione()
 
@@ -431,6 +444,32 @@ if step_corrente == "Intro":
 elif step_corrente == "Step 1":
     mostra_immagine("step1.png", "Dati dell’investimento")
     st.markdown('<div class="step-title">Step 1 – Info Cliente</div>', unsafe_allow_html=True)
+
+    # Titolo e sottotitolo sotto l'immagine
+    
+
+    st.markdown(
+    """
+    <div style="background-color:#D6EBFF; padding:12px 18px; border-radius:8px; margin-bottom:10px;">
+        <p style="color:#000000; font-weight:bold; margin-bottom:6px;">
+            In questa sezione dovrai fornire 3 informazioni essenziali per provvedere alla costruzione del portafoglio:
+        </p>
+        <p style="color:##000000; margin:0;">
+            <strong>(1)</strong> L'Importo iniziale che verrà investito
+        </p>
+        <p style="color:#000000; margin:0;">
+            <strong>(2)</strong> L'Orizzonte temporale nel quale l'investitore non disinvestirà
+        </p>
+        <p style="color:#000000; margin:0;">
+            <strong>(3)</strong> La Classe di tolleranza al rischio
+        </p>
+    </div>
+    """,
+    unsafe_allow_html=True
+    )
+
+
+
 
     col1, col2 = st.columns(2)
 
@@ -498,7 +537,22 @@ elif step_corrente == "Step 1":
 # --------------------------------------------------------------------
 elif step_corrente == "Step 2":
     mostra_immagine("step2.png", "Mappa rischio / orizzonte")
+
+    st.markdown(
+    """
+    <div style="background-color:#D6EBFF; padding:10px 14px; border-radius:6px;">
+        <div class="step-subtitle" style="color:#000000; margin:0;">
+            Ecco la collocazione dell'investitore nella griglia Orizzonte Temporale - Tolleranza al Rischio
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+    )
+
+
     st.markdown('<div class="step-title">Step 2 – Matrice Orizzonte Temporale / Tolleranza al Rischio</div>', unsafe_allow_html=True)
+
+
 
     colonne_tolleranza_loc = colonne_tolleranza
     righe_orizzonte_loc = righe_orizzonte
@@ -542,15 +596,24 @@ elif step_corrente == "Step 3":
         '<div class="step-title">Step 3 – Perimetro di investimento</div>',
         unsafe_allow_html=True
     )
+
     st.markdown(
-        '<div class="step-subtitle">In questa fase sei chiamato ad identificare il tuo perimetro di investimento: i prodotti nei quali investire.</div>',
-        unsafe_allow_html=True
-    )
+    """
+    <div style="background-color:#D6EBFF; padding:10px 14px; border-radius:6px;">
+        <div class="step-subtitle" style="color:black; margin:0;">
+            In questa fase sei chiamato ad identificare il tuo perimetro di investimento: i prodotti nei quali investire. Usa il menù a tendina qui in basso per indicare la tipologia di prodotti che utilizzerai pre la realizzazione del portafoglio.
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+
 
     opzioni = ["Gestioni Patrimoniali", "Solo Fondi NEF", "Fondi NEF e Funds Partner"]
 
     st.session_state.canale_prodotti = st.selectbox(
-        "Tipologia di prodotti",
+        "Tipologia di prodotti:",
         opzioni,
         index=opzioni.index(st.session_state.canale_prodotti)
     )
@@ -593,7 +656,7 @@ elif step_corrente == "Step 3":
     st.markdown(
         f"""
         <div style="
-            background-color: #d7ecff;
+            background-color: #FFF3CD;
             padding: 16px;
             border-radius: 8px;
             color: #000000;
@@ -638,7 +701,7 @@ elif step_corrente == "Step 4":
 
         Rammenta che la tolleranza al rischio e la diversificazione temporale sono fattori tali
         che giustificano un incremento del peso dell'azionario mano a mano che il cliente
-        si colloca più in basso ed a destra nella griglia "Tolleranza al Rischio / Orizzonte Temporale".<br><br>
+        si colloca più in basso ed a destra nella griglia "Tolleranza al Rischio / Orizzonte Temporale".<br>
 
         Sperando di essere di aiuto ti supporteremo nella scelta.
         </div>
@@ -667,14 +730,16 @@ elif step_corrente == "Step 5":
     st.markdown(
         """
         <div style="
-            background-color: #e0e0e0;
+            background-color: #D6EBFF;
             padding: 12px;
             border-radius: 6px;
             color: #000000;
             font-size: 15px;
         ">
         Come forma di supporto nella scelta della % di Azionario in portafoglio,
-        rispondi al seguente quesito:
+        rispondi al seguente quesito con l'ausilio del menù a tendina<br><br>
+
+        Subito dopo la prima griglia, potrai fissare liberamente la % di Azionario del portafoglio
         </div>
         """,
         unsafe_allow_html=True
@@ -741,13 +806,15 @@ elif step_corrente == "Step 5":
     st.table(stile5)
 
     # ----------------- MENU DI SCELTA FINALE -----------------
-    st.write("")
     st.markdown(
-        "<div style='text-align:center; font-weight:bold;'>"
-        "Se lo ritieni opportuno fissa una % diversa di Azionario"
-        "</div>",
-        unsafe_allow_html=True
-    )
+    """
+    <div style="background-color:#D6EBFF; padding:10px 14px; border-radius:6px; text-align:center; font-weight:bold;">
+        Se lo ritieni opportuno fissa una % diversa di Azionario
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 
     opzioni_equity = [
         "0%", "5%", "10%", "15%", "20%", "25%", "30%",
@@ -892,7 +959,8 @@ elif step_corrente == "Step 6":
         utilizzare almeno le seguenti tre asset class:<br>
         (a) Obbligazionario € Breve Termine;<br>
         (b) Obbligazionario € Medio Lungo Termine;<br>
-        (c) Mercato Azionario.
+        (c) Mercato Azionario.<br><br>
+        N.B: Ai fini della scelta dovrai spuntare la casella delle asset class da utilizzare. 
         </div>
         """,
         unsafe_allow_html=True
@@ -1077,14 +1145,14 @@ elif step_corrente == "Focus":
             font-size: 15px;
             line-height: 1.5;
         ">
-        In questa sezione troverai dei consigli relativi alla selezione delle asset class che hai effettuato.
-        Qualche indicazione utile per ripensare eventualmente la selezione ed affinarla.
+        In questa sezione troverai dei consigli relativi alla selezione delle asset class che hai effettuato.<br>
+        Trattasi di indicazioni utili per modificare, eventualmente, la selezione ed affinarla.
         </div>
         """,
         unsafe_allow_html=True
     )
 
-    st.markdown("<span style='color:red'>N.B: Nel caso in cui tu voglia implementare una logica PAC le indicazioni qui di seguito fornite potranno in buona parte essere trascurate alla luce della peculiarità di un investimento ad Accumulo periodico e della necessità di limitare il numero di prodotti oggetto di investimento.</span>", unsafe_allow_html=True)
+    st.markdown("<span style='color:red'>N.B: Nel caso in cui tu voglia implementare una logica PAC, le indicazioni qui di seguito fornite potranno in buona parte essere trascurate alla luce della necessità di limitare il numero di prodotti oggetto di investimento.</span>", unsafe_allow_html=True)
 
 
     st.write("")
@@ -1530,9 +1598,18 @@ elif step_corrente == "Step 8":
 
 
     st.markdown(
-        "<div class='step-subtitle'>In questa sezione è possibile esplorare le caratteristiche salienti dell'asset allocation selezionata.</div>",
-        unsafe_allow_html=True
-    )
+    """
+    <div style="background-color:#D6EBFF; padding:10px 14px; border-radius:6px;">
+        <div class="step-subtitle" style="margin:0; color:#000000;">
+            In questa sezione è possibile esplorare le caratteristiche salienti dell'asset allocation selezionata.<br>
+            Sarà possibile analizzare: (a) Il Rendimento Atteso e la Deviazione Standard espressi su base annua; (b) Il comportamento del portafoglio in alcune "note" Fasi Orso-Toro; (c) Cosa potrebbe accadere in futuro al portafoglio in un anno "Particolarmente" vs "Molto" Positivo/Negativo; (d) Il comportamento del portafoglio nei migliori e peggiori Mesi-Trimestri-Anni della Storia.<br><br>
+            Nella parte finale, potrai fissare in libertà una Finestra Temporale ed analizzare la performance del portafoglio in quel periodo. 
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 
     # ------------------------------------------------------------------
     # Lettura INPUT_AC e costruzione del portafoglio (come in Step 7)
@@ -2114,6 +2191,22 @@ elif step_corrente == "Step 10":
 
     mostra_immagine("step10.png", "Selezione dei fondi per asset class")
 
+
+    st.markdown(
+    """
+    <div style="background-color:#D6EBFF; padding:10px 14px; border-radius:6px;">
+        <div class="step-subtitle" style="margin:0; color:#000000;">
+            In questa sezione sei chiamato a scegliere, per ciascuna delle asset class precedentemente selezionate, i prodotti con i quali effettuare l'investimento.<br>
+            A tale scopo, cliccando sul nome della singola asset class selezionata, dovrai:<br>
+            - spuntare la casella dei fondi da utilizzare<br>
+            - inserire il peso del Prodotto all'interno della asset class (i pesi devono sommare 100%)             
+
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+
     # Elenco delle 12 asset class gestite in questo step
     asset_class_list = [
         "Obbligazionario Euro BT",
@@ -2331,6 +2424,19 @@ elif step_corrente == "Step 11":
     )
 
     mostra_immagine("step11.png", "Riepilogo complessivo dei fondi")
+
+    st.markdown(
+    """
+    <div style="background-color:#D6EBFF; padding:10px 14px; border-radius:6px;">
+        <div class="step-subtitle" style="margin:0; color:#000000;">
+    Qui di seguito trovi la composizione finale del portafoglio in prodotti. Assicurati che la somma dei prodotti faccia 100%. Scorrendo la "Barra" verso destra potrai analizzare molte caratteristiche dei prodotti da te selezionati.<br>
+    Più in basso troverai delle informazioni di sintesi (valori medi) che riguardano il Portafoglio Complessivo.
+                     
+
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
     pesi_asset = st.session_state.get("pesi_asset_class", {})
     importi_asset = st.session_state.get("importi_asset_class", {})
@@ -2615,12 +2721,21 @@ elif step_corrente == "Step 11":
 elif step_corrente == "Step 12":
     mostra_immagine("step12.png", "Investimenti ricorrenti")
     
-
     st.markdown(
-        "<div class='step-subtitle'>In questa sezione potrai ipotizzare degli investimenti ricorrenti, così da realizzare un PAC. "
-        "Ti verranno qui di seguito richieste una serie di informazioni che dovrai fornire dettagliatamente.</div>",
-        unsafe_allow_html=True
-    )
+    """
+    <div style="background-color:#D6EBFF; padding:10px 14px; border-radius:6px;">
+        <div class="step-subtitle" style="margin:0; color:#000000;">
+    In questa sezione potrai ipotizzare degli investimenti ricorrenti, così da realizzare un PAC.<br>
+    Ti verranno qui di seguito richieste una serie di informazioni:<br>
+    - (con un 1° menu a tendina) Ti verrà chiesto se vuoi programmare degli investimenti periodici<br>
+    - (se Sì, con un 2° menu a tendina) Frequenza degli investimenti periodici<br>                
+    - (se Sì, con un 3° menu a tendina) Importo di ciascun investimento periodico<br>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+ 
 
 
 
@@ -2745,15 +2860,19 @@ elif step_corrente == "Step 13":
 
     # Testo introduttivo
     st.markdown(
-        """
-        <div style="font-size:16px; font-weight:bold;">
-        In questa sezione potrai implementare una logica Life Cycle, consistente nel cambiare la composizione del portafoglio
+    """
+    <div style="background-color:#D6EBFF; padding:10px 14px; border-radius:6px;">
+        <div class="step-subtitle" style="margin:0; color:#000000;">
+    In questa sezione potrai implementare una logica Life Cycle, consistente nel cambiare la composizione del portafoglio
         nella parte finale del periodo di investimento, allo scopo di non essere più sensibilmente esposti all'andamento
-        negativo dei mercati. Ti verranno qui di seguito richieste una serie di informazioni che dovrai fornire dettagliatamente.
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+        negativo dei mercati.<br>
+    Ti verranno qui di seguito richieste una serie di informazioni:<br>
+    - (con un 1° menu a tendina) Ti verrà chiesto se vuoi implementare il Life Cycle<br>
+    - (se Sì, con un 2° menu a tendina) Quanti anni prima della fine del periodo di investimento vuoi che inizi la riduzione della componente rischiosa<br>                
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
     # Titolo blu
     st.markdown(
@@ -2939,7 +3058,8 @@ elif step_corrente == "Step 14":
         (d) eventuali conferimenti periodici (Step 12);<br>
         (e) eventuale logica Life Cycle (Step 13).<br><br>
         Nel Grafico le linee grigie identificano l'evoluzione temporale del montante di ogni singola simulazione, la linea verde rappresenta lo scenario ottimistico corrispondente al novantesimo percentile, la linea rossa rappresenta lo scenario pessimistico corrispondente al decimo percentile e la linea blu rappresenta lo scenario atteso.<br>
-        La Tabella mostra per ciascuno degli anni che compongono il periodo di investimento il Montante Ottimistico, quello Atteso ed infine quello Pessimistico.
+        La Tabella mostra per ciascuno degli anni che compongono il periodo di investimento il Montante Ottimistico, quello Atteso ed infine quello Pessimistico.<br>
+        Utilizzando la barra a destra potrai esplirare il montante per gli anni più lontani.
         </div>
         """,
         unsafe_allow_html=True
