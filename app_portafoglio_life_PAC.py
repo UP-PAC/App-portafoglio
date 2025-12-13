@@ -7,6 +7,49 @@ import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import streamlit.components.v1 as components
+import io
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import cm
+from reportlab.lib.utils import ImageReader
+import io
+
+
+
+# --------------------------------------------------------------------
+# REPORT: memorizzazione SOLO delle versioni finali (overwrite per chiave)
+# --------------------------------------------------------------------
+def _report_init():
+    if "report_store" not in st.session_state:
+        # key -> {"title": str, "type": "png", "data": bytes, "order": int}
+        st.session_state.report_store = {}
+
+def report_store_png(key: str, title: str, fig, order: int = 999):
+    """Salva (sovrascrivendo) la PNG della figura in session_state per il report finale."""
+    _report_init()
+    buf = io.BytesIO()
+    fig.savefig(buf, format="png", dpi=150, bbox_inches="tight")
+    st.session_state.report_store[key] = {"title": title, "type": "png", "data": buf.getvalue(), "order": order}
+
+def report_store_df_as_png(key: str, title: str, df: pd.DataFrame, order: int = 999, max_rows: int = 35):
+    """Rende una tabella (DataFrame) come immagine PNG per il report finale."""
+    _report_init()
+    df2 = df.copy()
+    if len(df2) > max_rows:
+        df2 = df2.head(max_rows)
+
+    fig, ax = plt.subplots(figsize=(10, 0.6 + 0.35 * (len(df2) + 1)))
+    ax.axis("off")
+    tbl = ax.table(cellText=df2.values, colLabels=df2.columns, cellLoc="center", loc="center")
+    tbl.auto_set_font_size(False)
+    tbl.set_fontsize(8)
+    tbl.scale(1, 1.15)
+
+    buf = io.BytesIO()
+    fig.savefig(buf, format="png", dpi=150, bbox_inches="tight")
+    plt.close(fig)
+
+    st.session_state.report_store[key] = {"title": title, "type": "png", "data": buf.getvalue(), "order": order}
 
 def scroll_to_top():
     # Piccolo snippet JS che forza lo scroll all'inizio della pagina
@@ -19,6 +62,142 @@ def scroll_to_top():
         """,
         height=0,
     )
+
+
+# --------------------------------------------------------------------
+# PER PDF
+# --------------------------------------------------------------------
+def genera_pdf_report() -> bytes:
+    buf = io.BytesIO()
+    c = canvas.Canvas(buf, pagesize=A4)
+    w, h = A4
+
+    y = h - 2*cm
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(2*cm, y, "Report – Modello di Costruzione del Portafoglio")
+    y -= 1.2*cm
+
+    c.setFont("Helvetica", 11)
+
+    # Esempio: dati principali
+    importo = st.session_state.get("importo", 0.0)
+    orizzonte = st.session_state.get("orizzonte", 0.0)
+    toll = st.session_state.get("tolleranza", "")
+    equity = st.session_state.get("equity_scelta", "")
+
+    c.drawString(2*cm, y, f"Importo iniziale: € {importo:,.0f}".replace(",", "."))
+    y -= 0.7*cm
+    c.drawString(2*cm, y, f"Orizzonte: {orizzonte} anni")
+    y -= 0.7*cm
+    c.drawString(2*cm, y, f"Tolleranza al rischio: {toll}")
+    y -= 0.7*cm
+    c.drawString(2*cm, y, f"% Azionario scelta: {equity}")
+    y -= 1.0*cm
+
+    # Asset class selezionate
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(2*cm, y, "Asset class selezionate (Step 6)")
+    y -= 0.8*cm
+    c.setFont("Helvetica", 11)
+    asset_sel = st.session_state.get("asset_class_selezionate", [])
+    if asset_sel:
+        for a in asset_sel:
+            if y < 2*cm:
+                c.showPage()
+                y = h - 2*cm
+                c.setFont("Helvetica", 11)
+            c.drawString(2.2*cm, y, f"- {a}")
+            y -= 0.55*cm
+    else:
+        c.drawString(2.2*cm, y, "- (nessuna)")
+        y -= 0.7*cm
+
+    # (Facoltativo) tabella pesi/importi Step 7 se li hai in session_state
+    c.setFont("Helvetica-Bold", 12)
+    y -= 0.4*cm
+    c.drawString(2*cm, y, "Pesi e importi per asset class (Step 7)")
+    y -= 0.8*cm
+    c.setFont("Helvetica", 10)
+
+    pesi = st.session_state.get("pesi_asset_class", {})      # dict: {asset: peso}
+    importi = st.session_state.get("importi_asset_class", {}) # dict: {asset: importo}
+
+    if pesi:
+        for asset, peso in pesi.items():
+            imp = importi.get(asset, 0.0)
+            riga = f"{asset}: {peso}%  |  € {imp:,.0f}".replace(",", ".")
+            if y < 2*cm:
+                c.showPage()
+                y = h - 2*cm
+                c.setFont("Helvetica", 10)
+            c.drawString(2.2*cm, y, riga)
+            y -= 0.55*cm
+    else:
+        c.drawString(2.2*cm, y, "(dati non disponibili)")
+        y -= 0.7*cm
+
+    # ------------------------------------------------------------
+    # Figure e Tabelle (versioni finali)
+    # ------------------------------------------------------------
+    _report_init()
+    store = st.session_state.get("report_store", {})
+    if store:
+        # nuova pagina per contenuti grafici
+        c.showPage()
+        y = h - 2*cm
+        c.setFont("Helvetica-Bold", 13)
+        c.drawString(2*cm, y, "Figure e Tabelle (versione finale)")
+        y -= 1.0*cm
+
+        items = sorted(store.items(), key=lambda kv: kv[1].get("order", 999))
+        for _, item in items:
+            titolo = item.get("title", "")
+            data = item.get("data", None)
+            if not data:
+                continue
+
+            # Titolo
+            c.setFont("Helvetica-Bold", 11)
+            if y < 3*cm:
+                c.showPage()
+                y = h - 2*cm
+            c.drawString(2*cm, y, titolo[:110])
+            y -= 0.6*cm
+
+            # Immagine
+            try:
+                img = ImageReader(io.BytesIO(data))
+                iw, ih = img.getSize()
+                max_w = w - 4*cm
+                max_h = y - 2*cm
+                if max_h < 4*cm:
+                    c.showPage()
+                    y = h - 2*cm
+                    c.setFont("Helvetica-Bold", 11)
+                    c.drawString(2*cm, y, titolo[:110])
+                    y -= 0.6*cm
+                    max_h = y - 2*cm
+
+                scale = min(max_w / iw, max_h / ih)
+                dw, dh = iw * scale, ih * scale
+                c.drawImage(img, 2*cm, y - dh, width=dw, height=dh, preserveAspectRatio=True, mask='auto')
+                y -= dh + 0.9*cm
+            except Exception:
+                c.setFont("Helvetica", 9)
+                c.drawString(2*cm, y, "(Immagine non disponibile)")
+                y -= 0.6*cm
+
+        # ------------------------------------------------------------
+    # REPORT_CONTENT_BLOCK_v2
+    # ------------------------------------------------------------
+
+
+    c.showPage()
+    c.save()
+    pdf_bytes = buf.getvalue()
+    buf.close()
+    return pdf_bytes
+
 
 
 # --------------------------------------------------------------------
@@ -1504,6 +1683,7 @@ elif step_corrente == "Step 7":
     )
 
     st.dataframe(styled, use_container_width=True)
+    report_store_df_as_png("step7_table_micro", "Step 7 – Tabella asset class (micro)", df, order=700)
 
 
 
@@ -1526,6 +1706,7 @@ elif step_corrente == "Step 7":
         ax.pie(values, labels=labels, autopct="%1.0f%%", startangle=90, colors=colors)
         ax.set_title("Asset allocation per asset class")
         st.pyplot(fig)
+        report_store_png("step7_pie_asset", "Step 7 – Grafico a torta per asset class", fig, order=701)
 
     # ------------------ TABELLA MACRO + PIE CHART ------------------
     if macro:
@@ -1567,6 +1748,7 @@ elif step_corrente == "Step 7":
             )
 
             st.dataframe(styled_macro, use_container_width=True)
+    report_store_df_as_png("step7_table_macro", "Step 7 – Tabella Macro Asset Class", df_macro, order=702)
 
 
 
@@ -1579,6 +1761,7 @@ elif step_corrente == "Step 7":
             ax2.pie(values_m, labels=labels_m, autopct="%1.0f%%", startangle=90, colors=colors_m)
             ax2.set_title("Asset allocation per Macro Asset Class")
             st.pyplot(fig2)
+            report_store_png("step7_pie_macro", "Step 7 – Grafico a torta per Macro Asset Class", fig2, order=703)
 
     mostra_pulsanti_navigazione()
 
@@ -2753,6 +2936,7 @@ elif step_corrente == "Step 11":
         ax.pie(sizes, labels=labels, autopct="%1.0f%%", startangle=90)
         ax.axis("equal")
         st.pyplot(fig)
+        report_store_png('step11_pie_prodotti', 'Step 11 – Composizione del portafoglio in prodotti', fig, order=111)
     except Exception as e:
         st.warning(f"Impossibile creare il grafico a torta: {e}")
 
@@ -2896,6 +3080,7 @@ elif step_corrente == "Step 12":
 
     st.pyplot(fig)
 
+    report_store_png('step12_bar_pac', 'Step 12 – Flussi di investimento (PAC)', fig, order=121)
     mostra_pulsanti_navigazione()
 
 # --------------------------------------------------------------------
@@ -2979,6 +3164,8 @@ elif step_corrente == "Step 13":
         ax.set_title("Evoluzione dell'asset allocation (senza Life Cycle)")
 
         st.pyplot(fig)
+
+        report_store_png('step13_area_lifecycle', 'Step 13 – Evoluzione dell’asset allocation (Life Cycle)', fig, order=131)
         mostra_pulsanti_navigazione()
         st.stop()
 
@@ -3076,6 +3263,7 @@ elif step_corrente == "Step 13":
 
     st.pyplot(fig)
 
+    report_store_png('step13_area_lifecycle', 'Step 13 – Evoluzione dell’asset allocation (Life Cycle)', fig, order=131)
     mostra_pulsanti_navigazione()
 
 # --------------------------------------------------------------------
@@ -3290,6 +3478,7 @@ elif step_corrente == "Step 14":
         ax.legend(loc="upper left", fontsize=8)
 
         st.pyplot(fig)
+        report_store_png("step14_mc", "Step 14 – Simulazioni Monte Carlo del montante", fig, order=1401)
 
         # --------------------------------------------------------------
         # 7. Tabella riepilogativa anno per anno
@@ -3319,9 +3508,22 @@ elif step_corrente == "Step 14":
             use_container_width=True
         )
 
+        report_store_df_as_png("step14_tab", "Step 14 – Tabella scenari percentili (annuale)", df_tab, order=1402)
+
     except Exception as e:
         # Se qualcosa va storto, lo vediamo chiaramente nello Step 14
         st.error("Si è verificato un errore durante la simulazione Monte Carlo:")
         st.exception(e)
+        
+    st.markdown("### Scarica il report")
+    pdf_bytes = genera_pdf_report()
+
+    st.download_button(
+    label="📄 Scarica PDF del processo",
+    data=pdf_bytes,
+    file_name="report_portafoglio.pdf",
+    mime="application/pdf"
+)
+    
 
     mostra_pulsanti_navigazione()
