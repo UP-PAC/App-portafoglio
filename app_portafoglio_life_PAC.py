@@ -2373,7 +2373,7 @@ elif step_corrente == "Step 9":
                 margin-top:6px;
                 margin-bottom:14px;
             ">
-                <div>I dati relativi ai fondi sono aggiornati al:</div>
+                <div>I dati relativi ai Fondi e ai Mercati sono aggiornati al:</div>
                 <div style="font-size:22px;">{data_aggiornamento_str}</div>
             </div>
             ''',
